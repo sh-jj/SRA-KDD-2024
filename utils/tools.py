@@ -212,11 +212,10 @@ map_bounds={
     
 
 # def generate_uniform_points(M, N):
-#     # 从 [0, M) 区间均匀采样 N 个点
+
 #     x_coordinates = np.random.uniform(0, M, N)
 #     y_coordinates = np.random.uniform(0, M, N)
 
-#     # 将生成的坐标合并为二维数组
 #     points = np.column_stack((x_coordinates, y_coordinates))
 
 #     return points
@@ -437,7 +436,7 @@ def draw_evalmap(env,actor,device,eval_episodes,seed, state_mean, state_std,
 #     draw_density(new_buffer, state_mean, state_std,
 #                 #   new_weight,
 #                   imgname=imgname+'-NewAug_Density.png')
-    # # 绘制weights分布图
+
     # old_x, old_y = old_state[:old_data_size, 0], old_state[:old_data_size, 1]
     # scatter_ax1 = ax1.scatter(old_x, old_y, c=old_weight, cmap='viridis_r',label=f"{old_data_size} transitions", s=1, alpha=0.3, edgecolors='face',linewidths=0.5)
     # ax1.legend(loc="lower right")
@@ -456,7 +455,6 @@ def draw_evalmap(env,actor,device,eval_episodes,seed, state_mean, state_std,
     # # ax2.title(f"New Augment Data, {new_data_size} trainsitions")
     # plt.suptitle(f"Threshold = {ratio}")
 
-    # # 调整布局
     # plt.tight_layout()
     # plt.xlim(0,7.5)
     # plt.ylim(0,11)
@@ -603,7 +601,7 @@ if __name__ == "__main__":
     eval_episodes = args.eval_episodes
     
     
-    # policy = BCDP(**kwargs)
+    # policy = IQL(**kwargs)
     # print(f"Load Policy Model from {model_path}")
     # policy.load(filename=model_path)
     
