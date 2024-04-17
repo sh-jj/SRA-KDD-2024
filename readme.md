@@ -1,10 +1,8 @@
 # SRA-KDD-Submission
 
-Code of the submission: Offline Imitation Learning with Model-based Reverse Augmentation
-
+Code of the submission: **Offline Imitation Learning with Model-based Reverse Augmentation**
 
 ![](SRA-framework.png)
-
 
 ## Installation
 
@@ -12,7 +10,5 @@ Code of the submission: Offline Imitation Learning with Model-based Reverse Augm
 
 ## Scripts for Main Results
 
-    bash sra_iql_maze.sh 
-    bash sra_iql_mujoco.sh 
-
-
+    bash sra_iql_maze.sh
+    bash sra_iql_mujoco.sh
