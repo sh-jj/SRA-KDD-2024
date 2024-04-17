@@ -587,11 +587,11 @@ if __name__ == "__main__":
     old_weight = np.zeros_like(replay_buffer_e.reward)
     new_weight = np.zeros_like(replay_buffer_o.reward)
     ratio = 1.0
-    imgname = os.path.join('shihs','figure','AugData.png')
+    imgname = os.path.join('figure','AugData.png')
     
-    draw_oldaug_newaug(old_buffer, new_buffer, state_mean, state_std,
-                       old_weight, new_weight, ratio,
-                       imgname, False)
+    # draw_oldaug_newaug(old_buffer, new_buffer, state_mean, state_std,
+    #                    old_weight, new_weight, ratio,
+    #                    imgname, False)
     # kwargs = {
     #     "state_dim": state_dim, 
     #     "action_dim": action_dim, 
@@ -600,7 +600,6 @@ if __name__ == "__main__":
 
 
     # Initialize policy
-    # load_model = "shihs/model/bcdp-rollout[10]-PG[20w]/ROMI-BCDP"
     eval_episodes = args.eval_episodes
     
     
