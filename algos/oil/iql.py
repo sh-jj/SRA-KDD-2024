@@ -1,5 +1,5 @@
-# source: https://github.com/gwthomas/IQL-PyTorch
-# https://arxiv.org/pdf/2110.06169.pdf
+
+
 import copy
 import os
 import random
@@ -84,68 +84,6 @@ class MLP(nn.Module):
         return self.net(x)
 
 
-# class GaussianPolicy(nn.Module):
-#     def __init__(
-#         self,
-#         state_dim: int,
-#         act_dim: int,
-#         max_action: float,
-#         hidden_dim: int = 256,
-#         n_hidden: int = 2,
-#         dropout: Optional[float] = None,
-#     ):
-#         super().__init__()
-#         self.net = MLP(
-#             [state_dim, *([hidden_dim] * n_hidden), act_dim],
-#             output_activation_fn=nn.Tanh,
-#         )
-#         self.log_std = nn.Parameter(torch.zeros(act_dim, dtype=torch.float32))
-#         self.max_action = max_action
-
-#     def forward(self, obs: torch.Tensor) -> Normal:
-#         mean = self.net(obs)
-#         std = torch.exp(self.log_std.clamp(LOG_STD_MIN, LOG_STD_MAX))
-#         return Normal(mean, std)
-
-#     @torch.no_grad()
-#     def act(self, state: np.ndarray, device: str = "cpu"):
-#         state = torch.tensor(state.reshape(1, -1), device=device, dtype=torch.float32)
-#         dist = self(state)
-#         action = dist.mean if not self.training else dist.sample()
-#         action = torch.clamp(self.max_action * action, -self.max_action, self.max_action)
-#         return action.cpu().data.numpy().flatten()
-
-
-# class DeterministicPolicy(nn.Module):
-#     def __init__(
-#         self,
-#         state_dim: int,
-#         act_dim: int,
-#         max_action: float,
-#         hidden_dim: int = 256,
-#         n_hidden: int = 2,
-#         dropout: Optional[float] = None,
-#     ):
-#         super().__init__()
-#         self.net = MLP(
-#             [state_dim, *([hidden_dim] * n_hidden), act_dim],
-#             output_activation_fn=nn.Tanh,
-#             dropout=dropout,
-#         )
-#         self.max_action = max_action
-
-#     def forward(self, obs: torch.Tensor) -> torch.Tensor:
-#         return self.net(obs)
-
-#     @torch.no_grad()
-#     def act(self, state: np.ndarray, device: str = "cpu"):
-#         state = torch.tensor(state.reshape(1, -1), device=device, dtype=torch.float32)
-#         return (
-#             torch.clamp(self(state) * self.max_action, -self.max_action, self.max_action)
-#             .cpu()
-#             .data.numpy()
-#             .flatten()
-#         )
 
 class Actor(nn.Module):
     def __init__(self, state_dim, action_dim):
@@ -218,69 +156,6 @@ class Actor(nn.Module):
         # print(action.shape)
         # exit(0)
         return action
-
-# class Actor(nn.Module):
-#     def __init__(self, state_dim, action_dim):
-#         super(Actor, self).__init__()
-
-#         self.fc1 = nn.Linear(state_dim, 256)
-#         self.fc2 = nn.Linear(256, 256)
-#         self.mu_head = nn.Linear(256, action_dim)
-#         self.sigma_head = nn.Linear(256, action_dim)
-
-#     def _get_outputs(self, state):
-#         a = F.relu(self.fc1(state))
-#         a = F.relu(self.fc2(a))
-#         mu = self.mu_head(a)
-#         mu = torch.clip(mu, MEAN_MIN, MEAN_MAX)
-#         log_sigma = self.sigma_head(a)
-#         log_sigma = torch.clip(log_sigma, LOG_STD_MIN, LOG_STD_MAX)
-#         sigma = torch.exp(log_sigma)
-
-#         a_distribution = TransformedDistribution(
-#             Normal(mu, sigma), TanhTransform(cache_size=1)
-#         )
-#         a_tanh_mode = torch.tanh(mu)
-#         return a_distribution, a_tanh_mode
-
-#     def forward(self, state):
-#         a_dist, a_tanh_mode = self._get_outputs(state)
-#         action = a_dist.rsample()
-#         logp_pi = a_dist.log_prob(action).sum(axis=-1)
-#         return action, logp_pi, a_tanh_mode
-
-#     def get_log_density(self, state, action):
-#         a_dist, _ = self._get_outputs(state)
-#         action_clip = torch.clip(action, -1. + EPS, 1. - EPS)
-#         logp_action = a_dist.log_prob(action_clip)
-#         return logp_action
-    
-#     @torch.no_grad()
-#     def select_action(self, state, device):
-#         state = torch.FloatTensor(state.reshape(1, -1)).to(device)
-#         _, _, action = self.forward(state)
-#         return action.cpu().data.numpy().flatten()
-    
-#     @torch.no_grad()
-#     def select_action_with_prob(self, state, device):
-#         state = torch.FloatTensor(state.reshape(1, -1)).to(device)
-#         _, _, action = self.forward(state)
-#         prob = torch.sum(self.get_log_density(state, action),dim=-1)
-        
-#         return action.cpu().data.numpy().flatten(), prob.cpu().data.numpy().flatten()
-    
-#     def act(self, state):
-
-#         # print(state)
-        
-#         _, _, action = self.forward(state)
-
-#         # print(action)
-
-#         # # print(state.shape)
-#         # print(action.shape)
-#         # exit(0)
-#         return action
 
 class TwinQ(nn.Module):
     def __init__(
@@ -355,39 +230,6 @@ class IQL:
         self.actor_lr_schedule = CosineAnnealingLR(self.actor_optimizer, max_steps)
         
         
-    # def __init__(
-    #     self,
-    #     max_action: float,
-    #     actor: nn.Module,
-    #     actor_optimizer: torch.optim.Optimizer,
-    #     q_network: nn.Module,
-    #     q_optimizer: torch.optim.Optimizer,
-    #     v_network: nn.Module,
-    #     v_optimizer: torch.optim.Optimizer,
-    #     iql_tau: float = 0.7,
-    #     beta: float = 3.0,
-    #     max_steps: int = 1000000,
-    #     discount: float = 0.99,
-    #     tau: float = 0.005,
-    #     device: str = "cpu",
-    # ):
-    #     self.max_action = max_action
-    #     self.qf = q_network
-    #     self.q_target = copy.deepcopy(self.qf).requires_grad_(False).to(device)
-    #     self.vf = v_network
-    #     self.actor = actor
-    #     self.v_optimizer = v_optimizer
-    #     self.q_optimizer = q_optimizer
-    #     self.actor_optimizer = actor_optimizer
-    #     self.actor_lr_schedule = CosineAnnealingLR(self.actor_optimizer, max_steps)
-    #     self.iql_tau = iql_tau
-    #     self.beta = beta
-    #     self.discount = discount
-    #     self.tau = tau
-
-    #     self.total_it = 0
-    #     self.device = device
-
     def _update_v(self, observations, actions, log_dict) -> torch.Tensor:
         # Update value function
         with torch.no_grad():
@@ -422,44 +264,6 @@ class IQL:
         # Update target Q network
         soft_update(self.q_target, self.qf, self.tau)
 
-    # def _update_policy(
-    #     self,
-    #     adv: torch.Tensor,
-    #     observations: torch.Tensor,
-    #     actions: torch.Tensor,
-    #     log_dict: Dict,
-    # ):
-    #     exp_adv = torch.exp(self.beta * adv.detach()).clamp(max=EXP_ADV_MAX)
-    #     policy_out = self.actor(observations)
-    #     if isinstance(policy_out, torch.distributions.Distribution):
-    #         bc_losses = -policy_out.log_prob(actions).sum(-1, keepdim=False)
-    #     elif torch.is_tensor(policy_out):
-    #         if policy_out.shape != actions.shape:
-    #             raise RuntimeError("Actions shape missmatch")
-    #         bc_losses = torch.sum((policy_out - actions) ** 2, dim=1)
-    #     else:
-    #         raise NotImplementedError
-    #     policy_loss = torch.mean(exp_adv * bc_losses)
-    #     log_dict["actor_loss"] = policy_loss.item()
-    #     self.actor_optimizer.zero_grad()
-    #     policy_loss.backward()
-    #     self.actor_optimizer.step()
-    #     self.actor_lr_schedule.step()
-    # def train(self,replay_buffer_u=None,iters = 1, batch_size=256):
-    #     if(replay_buffer_u == None):
-    #         return
-    #     log_dict = {'value_loss':[],
-    #                 'q_loss':[],
-    #                 'actor_loss':[]}
-    #     for i in range(iters):
-    #         batch_u = replay_buffer_u.sample(batch_size)
-    #         batch_u = [b.to(self.device) for b in batch_u]
-    #         log_dict_ = self._train(batch_u)
-    #         log_dict['value_loss'].append(log_dict_['value_loss'])
-    #         log_dict['q_loss'].append(log_dict_['q_loss'])
-    #         log_dict['actor_loss'].append(log_dict_['actor_loss'])
-    #     return log_dict
-    
     def train(self, buffer_e, buffer_o, iterations=1, batch_size=256):
         self.actor.train()
 
@@ -570,29 +374,3 @@ class IQL:
             
             
             
-            
-    # def state_dict(self) -> Dict[str, Any]:
-    #     return {
-    #         "qf": self.qf.state_dict(),
-    #         "q_optimizer": self.q_optimizer.state_dict(),
-    #         "vf": self.vf.state_dict(),
-    #         "v_optimizer": self.v_optimizer.state_dict(),
-    #         "actor": self.actor.state_dict(),
-    #         "actor_optimizer": self.actor_optimizer.state_dict(),
-    #         "actor_lr_schedule": self.actor_lr_schedule.state_dict(),
-    #         "total_it": self.total_it,
-    #     }
-
-    # def load_state_dict(self, state_dict: Dict[str, Any]):
-    #     self.qf.load_state_dict(state_dict["qf"])
-    #     self.q_optimizer.load_state_dict(state_dict["q_optimizer"])
-    #     self.q_target = copy.deepcopy(self.qf)
-
-    #     self.vf.load_state_dict(state_dict["vf"])
-    #     self.v_optimizer.load_state_dict(state_dict["v_optimizer"])
-
-    #     self.actor.load_state_dict(state_dict["actor"])
-    #     self.actor_optimizer.load_state_dict(state_dict["actor_optimizer"])
-    #     self.actor_lr_schedule.load_state_dict(state_dict["actor_lr_schedule"])
-
-    #     self.total_it = state_dict["total_it"]

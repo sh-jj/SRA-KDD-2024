@@ -299,7 +299,6 @@ def calc_weight_for_databuffer(state_data, weight_model,
     
     return weight
 
-# 这个规模实际上很小，discriminator不需要迭代太多步
 
 def Filter_Sample_State(prestep_buffer, now_buffer, num_preserved, 
                         state_mean, state_std,
