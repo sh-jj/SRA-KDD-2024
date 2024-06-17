@@ -1,6 +1,6 @@
-# SRA-KDD-Submission
+# SRA-KDD-2024
 
-Code of the submission: **Offline Imitation Learning with Model-based Reverse Augmentation**
+Code of the KDD2024 paper: **Offline Imitation Learning with Model-based Reverse Augmentation**
 
 ![](SRA-framework.png)
 
